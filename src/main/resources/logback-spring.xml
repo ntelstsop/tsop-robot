@@ -10,7 +10,7 @@
     </springProfile>
 
     <springProfile name="dev">
-        <property name="LOG_FILE" value="/home/LogFiles/Application/application.log"/>
+        <property name="LOG_FILE" value="/home/LogFiles/Application/application-${catalina.instance.name}.log"/>
         <property name="LOG_FILE_MAX_HISTORY" value="60"/>
         <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
         <root level="INFO">

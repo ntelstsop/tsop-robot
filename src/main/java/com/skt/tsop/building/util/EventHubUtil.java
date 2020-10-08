@@ -33,12 +33,12 @@ public class EventHubUtil {
     /**
      * 이벤트 허브 ConnectionString.
      */
-    @Value("${config.cctv.eventhub.connString}")
+    @Value("${config.common.eventhub.connString}")
     private String connString;
     /**
      * 이벤트 허브 이름.
      */
-    @Value("${config.cctv.eventhub.name}")
+    @Value("${config.common.eventhub.name}")
     private String eventHubName;
 
     @PostConstruct

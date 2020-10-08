@@ -24,10 +24,7 @@ config:
     id: sdk
     password: Innodep1@
     group: group1
-    license: licVCA
-    eventhub:
-      connString: Endpoint=sb://yj-eventhub01.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=uPrHV6CYGzN3UzzU0Mfv/okVOH6FfY3q/qf/NXz+nq4=
-      name: eventhub01
+    license: licNormalClient
     device:
       ctxSerial: 0
     receiveEvent:
@@ -37,9 +34,33 @@ config:
       userlog: false
   elevator:
     serviceType: elevator
+  common:
+    eventhub:
+      connString: Endpoint=sb://yj-eventhub01.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=uPrHV6CYGzN3UzzU0Mfv/okVOH6FfY3q/qf/NXz+nq4=
+      name: eventhub01
 
 ---
 spring:
   profiles: dev
-server:
-  port: 8001
+config:
+  cctv:
+    serviceType: ${CCTV_SERVICE_TYPE}
+    ip: ${CCTV_VURIX_IP}
+    port: ${CCTV_VURIX_PORT}
+    id: ${CCTV_VURIX_ID}
+    password: ${CCTV_VURIX_PASSWORD}
+    group: ${CCTV_VURIX_GROUP}
+    license: ${CCTV_VURIX_LICENSE}
+    device:
+      ctxSerial: ${CCTV_DEVICE_CTX_SERIAL}
+    receiveEvent:
+      event: ${CCTV_RECEIVE_EVENT_OPTS}
+      monitoring: ${CCTV_RECEIVE_MONITORING_OPTS}
+      system: ${CCTV_RECEIVE_SYSTEM_OPTS}
+      userlog: ${CCTV_RECEIVE_USERLOG_OPTS}
+  elevator:
+    serviceType: ${ELEVATOR_SERVICE_TYPE}
+  common:
+    eventhub:
+      connString: ${COMMON_EVENTHUB_CONSTRING}
+      name: ${COMMON_EVENTHUB_NAME}
