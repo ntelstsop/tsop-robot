@@ -1,0 +1,45 @@
+spring:
+  profiles:
+    active: local
+  mvc:
+    locale: ko_KR
+  messages:
+    basename: classpath:/messages/message
+    encoding: UTF-8
+config:
+  restTemplate:
+    timeout: 10000
+    maxConnTotal: 100
+    maxConnPerRoute: 50
+---
+spring:
+  profiles: local
+server:
+  port: 8000
+config:
+  cctv:
+    serviceType: aicctv
+    ip: 112.219.69.210
+    port: 16118
+    id: sdk
+    password: Innodep1@
+    group: group1
+    license: licNormalClient
+    eventhub:
+      connString: Endpoint=sb://yj-eventhub01.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=uPrHV6CYGzN3UzzU0Mfv/okVOH6FfY3q/qf/NXz+nq4=
+      name: eventhub01
+    device:
+      ctxSerial: 0
+    receiveEvent:
+      event: true
+      monitoring: false
+      system: false
+      userlog: false
+  elevator:
+    serviceType: elevator
+
+---
+spring:
+  profiles: dev
+server:
+  port: 8001
