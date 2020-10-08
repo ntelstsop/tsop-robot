@@ -1,9 +1,10 @@
-package com.skt.tsop.building.util;
+package com.skt.tsop.building.controller.cctv;
 
 import com.azure.messaging.eventhubs.EventData;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.skt.tsop.building.service.cctv.AuthenticationService;
+import com.skt.tsop.building.util.EventHubUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
@@ -23,16 +24,12 @@ import javax.annotation.PostConstruct;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * EventUtil.
- * @author yjkim@ntels.com
- */
 @Component
-public class EventUtil {
+public class MultiPartEventController {
     /**
      * Logger.
      */
-    private static final Logger logger = LoggerFactory.getLogger(EventUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(MultiPartEventController.class);
     /**
      * AuthenticationService.
      */

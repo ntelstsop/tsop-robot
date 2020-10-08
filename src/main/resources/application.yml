@@ -24,7 +24,7 @@ config:
     id: sdk
     password: Innodep1@
     group: group1
-    license: licNormalClient
+    license: licVCA
     eventhub:
       connString: Endpoint=sb://yj-eventhub01.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=uPrHV6CYGzN3UzzU0Mfv/okVOH6FfY3q/qf/NXz+nq4=
       name: eventhub01
