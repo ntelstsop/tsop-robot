@@ -4,13 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.skt.tsop.building</groupId>
-    <artifactId>v001-Building</artifactId>
+    <groupId>com.skt.tsop.robot</groupId>
+    <artifactId>v001-Robot</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <name>TSOP-BUILDING</name>
-    <description>SKT TSOP BUILDING CODE</description>
+    <name>TSOP-ROBOT</name>
+    <description>SKT TSOP ROBOT CODE</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>

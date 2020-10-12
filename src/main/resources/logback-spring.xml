@@ -6,7 +6,7 @@
         <root level="INFO">
             <appender-ref ref="CONSOLE" />
         </root>
-        <logger name="com.skt.tsop.building" level="DEBUG" />
+        <logger name="com.skt.tsop.robot" level="DEBUG" />
     </springProfile>
 
     <springProfile name="dev">
@@ -16,7 +16,7 @@
         <root level="INFO">
             <appender-ref ref="FILE" />
         </root>
-        <logger name="com.skt.tsop.building" level="DEBUG" />
+        <logger name="com.skt.tsop.robot" level="DEBUG" />
     </springProfile>
 
     <springProfile name="prd">
@@ -26,6 +26,6 @@
         <root level="INFO">
             <appender-ref ref="FILE" />
         </root>
-        <logger name="com.skt.tsop.building" level="DEBUG" />
+        <logger name="com.skt.tsop.robot" level="DEBUG" />
     </springProfile>
 </configuration>
