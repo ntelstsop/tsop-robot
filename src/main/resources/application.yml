@@ -19,7 +19,7 @@ server:
 config:
   robot:
     serviceType: robot
-    brokerip: nats://15.164.145.178
+    brokerip: 15.164.145.178
     brokerport: 4222
   common:
     eventhub:
