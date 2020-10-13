@@ -1,9 +1,12 @@
 package com.skt.tsop.robot.util;
 
+import com.azure.messaging.eventhubs.EventData;
 import com.azure.messaging.eventhubs.EventHubClientBuilder;
+import com.google.gson.Gson;
 import io.nats.client.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +15,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.*;
 
 /**
@@ -42,19 +47,38 @@ public class MessageBrokerUtil {
     /**
      * NATS 클라이언트의 Subscribe을 위한 Sub 항목 리스트.
      */
-    private ArrayList<Dispatcher> dispacherList = null;
+    private ArrayList<Dispatcher> dispatchersArrayList = null;
 
     /**
      * NATS 서버 접속을 위한 클라이언트.
      */
     private Connection nc = null;
 
+    /**
+     * EventHub로 데이터를 전송하기 위한 객체.
+     */
+    @Autowired
+    EventHubUtil eventHubUtil;
+
+    /**
+     * Subscription List.
+     */
+    private String[] sublist = {".navigation_service.robot.pose", ".status.battery"
+            , ".navigation_service.global_planner.GlobalPlanner.plan.converted"
+            , ".lrf.scan", ".status.emergency", ".service.status"};
+
+    /**
+     * Robot Service Type.
+     */
+    @Value("${config.robot.serviceType}")
+    private String serviceType;
+
     @PostConstruct
     public void init() {
         try {
             Options option = this.initBrokerClient();
             nc = Nats.connect(option);
-            this.initSubscribe();
+            this.initSubscribe("addy-id1");
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -80,36 +104,50 @@ public class MessageBrokerUtil {
     /**
      * NATS 클라이언트에 여러개의 SUB을 거는 메소드
      * */
-    private void initSubscribe() {
-        this.dispacherList = new ArrayList<>();
+    private void initSubscribe(String robotID) {
+
+        if(robotID == null)
+            return;
+
+        this.dispatchersArrayList = new ArrayList<>();
 
         CountDownLatch latch = new CountDownLatch(msgCount); // dispatcher runs callback in another thread
 
-        Dispatcher d = nc.createDispatcher((msg) -> {
-            System.out.printf("Received message \"%s\" on subject \"%s\"\n",
-                    new String(msg.getData(), StandardCharsets.UTF_8),
-                    msg.getSubject());
-            latch.countDown();
-        });
-
-        //아래 방식은 싱글 스레드 이므로, 멀티로 해야 한다.
-        d.subscribe("addy-id1.navigation_service.robot.pose")
-                .subscribe("addy-id1.status.battery")
-                .subscribe("addy-id1.navigation_service.global_planner.GlobalPlanner.plan.converted")
-                .subscribe("addy-id1.lrf.scan")
-                .subscribe("addy-id1.status.emergency");
-
-        /*
-        Dispatcher d = nc.createDispatcher((msg) -> {});
-
-        Subscription s = d.subscribe("some.subject", (msg) -> {
-            String response = new String(msg.getData(), StandardCharsets.UTF_8);
-            System.out.println("Message received (up to 100 times): " + response);
-        });
-        d.unsubscribe(s, 100);
-         */
-
         try {
+            for(String subscription : sublist) {
+                Dispatcher despatcher = nc.createDispatcher((msg) -> {});
+
+                Subscription sub = despatcher.subscribe(robotID + subscription, (msg) -> {
+                    String response = new String(msg.getData(), StandardCharsets.UTF_8);
+                    logger.info(robotID + subscription + " Message received : " + response);
+
+                    /*
+                    if(subscription.equals(".navigation_service.robot.pose")) {
+
+                    } else if(subscription.equals(".status.battery")) {
+
+                    } else if(subscription.equals(".navigation_service.global_planner.GlobalPlanner.plan.converted")) {
+
+                    } else if(subscription.equals(".lrf.scan")) {
+
+                    } else if(subscription.equals(".status.emergency")) {
+
+                    } else if(subscription.equals(".service.status")) {
+
+                    }
+                    */
+
+                    Map<String, Object> eventMap = new HashMap<>();
+                    eventMap.put("urlpath", subscription.replaceFirst(".", ""));
+                    eventMap.put("servicetype", serviceType);
+                    eventMap.put("content", response);
+                    EventData eventData = new EventData(new Gson().toJson(eventMap));
+                    eventHubUtil.sendDataToEventHub(eventData);
+                });
+
+                this.dispatchersArrayList.add(despatcher);
+            }
+
             nc.flush(Duration.ZERO);
             latch.await();
         } catch (InterruptedException e) {
@@ -118,6 +156,26 @@ public class MessageBrokerUtil {
             e.printStackTrace();
         }
     }
+
+    /**
+     * NATS 클라이언트에 여러개의 SUB을 거는 메소드
+     * */
+    /*
+    private void initUnSubscribe() {
+        if(dispatchersArrayList != null && dispatchersArrayList.size() > 0) {
+            for(Dispatcher dispatcher : dispatchersArrayList) {
+               dispatcher.get
+            }
+
+            nc.flush(Duration.ZERO);
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (TimeoutException e) {
+            e.printStackTrace();
+        }
+    }
+    */
 
     /**
      * nats 서버에 접속하기 위한 nats 클라이언트 옵션 설정 메소드

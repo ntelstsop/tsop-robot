@@ -49,7 +49,7 @@ public class EventHubUtil {
     }
 
     public void sendDataToEventHub(EventData eventData) {
-        logger.debug("SEND_DATA_TO_EVENT_HUB_STARTED : byte={}, string={}", eventData.getBody(), eventData.getBodyAsString());
+        logger.debug("SEND_DATA_TO_EVENT_HUB_STARTED : string={}", eventData.getBodyAsString());
         batch = producer.createBatch();
         logger.debug("BATCH_INFO : count={}, sizeInBytes={}, maxSize={}" ,batch.getCount(), batch.getSizeInBytes(), batch.getMaxSizeInBytes());
         try {
@@ -61,5 +61,4 @@ public class EventHubUtil {
             throw new ExternalApiException("SEND_DATA_TO_EVENT_HUB_ERROR");
         }
     }
-
 }
