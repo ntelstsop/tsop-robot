@@ -2,6 +2,7 @@ package com.skt.tsop.robot.util;
 
 import com.azure.messaging.eventhubs.EventData;
 import com.google.gson.Gson;
+import com.skt.tsop.robot.model.ResponseCode;
 import com.skt.tsop.robot.model.TsoApiResponse;
 import io.nats.client.*;
 import org.json.JSONException;
@@ -186,7 +187,7 @@ public class MessageBrokerUtil {
             logger.error("NATS InterruptedException : " + e);
 
             HashMap<String, String> errorMessage = new HashMap<>();
-            errorMessage.put("error", e.toString());
+            errorMessage.put("error", ResponseCode.ServerError.getValue());
             response.setContent(errorMessage);
         }
 
