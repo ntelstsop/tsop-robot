@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 /**
  * EventHubUtil.
@@ -46,11 +47,15 @@ public class EventHubUtil {
         producer = new EventHubClientBuilder()
                 .connectionString(connString, eventHubName)
                 .buildProducerClient();
+
+        batch = producer.createBatch();
+
+        logger.debug("====CREATE EVENT HUB CLIENT====");
     }
 
     public void sendDataToEventHub(EventData eventData) {
         logger.debug("SEND_DATA_TO_EVENT_HUB_STARTED : string={}", eventData.getBodyAsString());
-        batch = producer.createBatch();
+
         logger.debug("BATCH_INFO : count={}, sizeInBytes={}, maxSize={}" ,batch.getCount(), batch.getSizeInBytes(), batch.getMaxSizeInBytes());
         try {
             batch.tryAdd(eventData);
@@ -61,4 +66,13 @@ public class EventHubUtil {
             throw new ExternalApiException("SEND_DATA_TO_EVENT_HUB_ERROR");
         }
     }
+
+    @PreDestroy
+    public void close() {
+        if (producer != null) {
+            producer.close();
+            logger.info("=======EVENT PRODUCER CLIENT CLOSE=======");
+        }
+    }
+
 }

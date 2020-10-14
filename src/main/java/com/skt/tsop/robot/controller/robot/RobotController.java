@@ -19,7 +19,7 @@ import java.util.Map;
  * @author syjeon@ntels.com
  */
 @RestController
-@RequestMapping(headers = "Accept=application/json", value = "/rest/robot")
+@RequestMapping(headers = "Accept=application/json", value = "/rest")
 public class RobotController {
 
     /**
@@ -75,7 +75,7 @@ public class RobotController {
      * @param request 요청들어온 HttpServletRequest
      * @return TsoApiResponse
      */
-    @PostMapping(value = "/topic/list")
+    @PostMapping(value = "/topics/list")
     public TsoApiResponse getTopicList(@RequestBody Map param, HttpServletRequest request) {
         logger.debug("ROBOT REST API REQUEST: uri={}, params={}", request.getRequestURI(), param.toString());
 
