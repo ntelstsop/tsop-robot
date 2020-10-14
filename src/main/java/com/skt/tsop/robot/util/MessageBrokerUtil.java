@@ -131,11 +131,10 @@ public class MessageBrokerUtil {
                     logger.info(robotID + subscription + " Message received : " + receiveData);
 
                     TsoApiResponse response = new TsoApiResponse();
-                    Map<String, Object> eventMap = new HashMap<>();
                     response.setUrlpath(subscription.replaceFirst(".", ""));
                     response.setServicetype(serviceType);
                     response.setContent(receiveData);
-                    EventData eventData = new EventData(new Gson().toJson(eventMap));
+                    EventData eventData = new EventData(new Gson().toJson(response));
                     eventHubUtil.sendDataToEventHub(eventData);
                 });
                 subscriptionList.add(sub.getSubject());
