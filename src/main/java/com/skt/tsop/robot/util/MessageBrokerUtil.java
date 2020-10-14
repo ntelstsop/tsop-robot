@@ -6,7 +6,6 @@ import com.skt.tsop.robot.model.ResponseCode;
 import com.skt.tsop.robot.model.TsoApiResponse;
 import io.nats.client.*;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
