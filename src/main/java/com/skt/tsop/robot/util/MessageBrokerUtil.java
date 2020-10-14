@@ -49,7 +49,7 @@ public class MessageBrokerUtil {
     /**
      * NATS 클라이언트의 Subscribe을 위한 Sub 항목 리스트.
      */
-    private ArrayList<Dispatcher> dispatchersArrayList = null;
+    private ArrayList<String> subscriptionList = null;
 
     /**
      * NATS 서버 접속을 위한 클라이언트.
@@ -63,7 +63,7 @@ public class MessageBrokerUtil {
     EventHubUtil eventHubUtil;
 
     /**
-     * Subscription List.
+     * Subscription을 걸기 위한 Dispatcher 객체
      */
     private Dispatcher dispatcher = null;
 
@@ -114,12 +114,13 @@ public class MessageBrokerUtil {
      * NATS 클라이언트에 여러개의 SUB을 거는 메소드
      * */
     private void initSubscribe(String robotID) {
-
         if(robotID == null)
             return;
 
         try {
             dispatcher = nc.createDispatcher((msg) -> {});
+
+            subscriptionList = new ArrayList<>();
 
             for(String subscription : sublist) {
                 Subscription sub = dispatcher.subscribe(robotID + subscription, (msg) -> {
@@ -134,34 +135,24 @@ public class MessageBrokerUtil {
                     EventData eventData = new EventData(new Gson().toJson(eventMap));
                     eventHubUtil.sendDataToEventHub(eventData);
                 });
+                subscriptionList.add(sub.getSubject());
             }
             nc.flush(Duration.ZERO);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
+        } catch (InterruptedException | TimeoutException e) {
+            logger.error("initSubscribe Error : " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     /**
-     * NATS 클라이언트에 여러개의 SUB을 거는 메소드
+     * NATS 클라이언트에 여러개의 UnSubscription을 거는 메소드
      * */
-    /*
     private void initUnSubscribe() {
-        if(dispatchersArrayList != null && dispatchersArrayList.size() > 0) {
-            for(Dispatcher dispatcher : dispatchersArrayList) {
-               dispatcher.get
-            }
-
-            nc.flush(Duration.ZERO);
-            latch.await();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
-            e.printStackTrace();
+        if (subscriptionList != null && subscriptionList.size() > 0) {
+            for (String sub : subscriptionList)
+                dispatcher.unsubscribe(sub);
         }
     }
-    */
 
     /**
      * NATS 서버에 제어를 전송하기 위한 메소드
