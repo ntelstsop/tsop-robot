@@ -73,7 +73,7 @@ public class RobotServiceImpl implements RobotService {
     @Override
     public TsoApiResponse robotControl(HttpServletRequest request, Map param) throws JSONException {
         String robotId = request.getHeader("robot_id");
-        String subject = request.getRequestURI();
+        String subject = request.getRequestURI().substring(1);
         String payload = new Gson().toJson(param);
 
         TsoApiResponse tsoApiResponse = messageBrokerUtil.publish(robotId,subject,payload);
