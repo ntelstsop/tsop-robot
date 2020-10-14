@@ -1,10 +1,11 @@
 package com.skt.tsop.robot.service;
 
 import com.google.gson.Gson;
+import com.skt.tsop.robot.model.ApiResponse;
 import com.skt.tsop.robot.model.TsoApiResponse;
-import com.skt.tsop.robot.model.URIQueryString;
-import com.skt.tsop.robot.util.RestTemplateMapUtil;
+import com.skt.tsop.robot.util.MessageBrokerUtil;
 import com.skt.tsop.robot.util.RestTemplateStringUtil;
+import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
@@ -44,9 +46,15 @@ public class RobotServiceImpl implements RobotService {
     @Autowired
     private RestTemplateStringUtil restTemplateStringUtil;
 
+    /**
+     * MessageBrokerUtil
+     */
+    @Autowired
+    private MessageBrokerUtil messageBrokerUtil;
+
     @Override
-    public TsoApiResponse getRobotApi(URIQueryString uriQueryString, Map param) {
-        String urlPath = uriQueryString.getUri();
+    public TsoApiResponse getRobotApi(HttpServletRequest request, Map param) {
+        String urlPath = request.getRequestURI();
         String url = serverUrl + urlPath;
 
         HttpHeaders headers = new HttpHeaders();
@@ -58,6 +66,21 @@ public class RobotServiceImpl implements RobotService {
         tsoApiResponse.setUrlpath(urlPath);
         tsoApiResponse.setServicetype(serviceType);
         tsoApiResponse.setContent(new Gson().fromJson(response, Map.class));
+
+        return tsoApiResponse;
+    }
+
+    @Override
+    public TsoApiResponse robotControl(HttpServletRequest request, Map param) throws JSONException {
+        String robotId = request.getHeader("robot_id");
+        String subject = request.getRequestURI();
+        String payload = new Gson().toJson(param);
+
+        TsoApiResponse tsoApiResponse = messageBrokerUtil.publish(robotId,subject,payload);
+
+        if (tsoApiResponse.getContent() == null){
+            tsoApiResponse.setContent(new ApiResponse());
+        }
 
         return tsoApiResponse;
     }
