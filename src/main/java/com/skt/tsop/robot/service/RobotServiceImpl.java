@@ -1,6 +1,7 @@
 package com.skt.tsop.robot.service;
 
 import com.google.gson.Gson;
+import com.skt.tsop.robot.exception.InvalidRequestException;
 import com.skt.tsop.robot.model.ApiResponse;
 import com.skt.tsop.robot.model.TsoApiResponse;
 import com.skt.tsop.robot.util.MessageBrokerUtil;
@@ -41,7 +42,7 @@ public class RobotServiceImpl implements RobotService {
     private String serverUrl;
 
     /**
-     * RestTemplateMap Util
+     * RestTemplateString Util
      */
     @Autowired
     private RestTemplateStringUtil restTemplateStringUtil;
@@ -73,8 +74,15 @@ public class RobotServiceImpl implements RobotService {
     @Override
     public TsoApiResponse robotControl(HttpServletRequest request, Map param) throws JSONException {
         String robotId = request.getHeader("robot_id");
+
+        if (robotId == null){
+            throw new InvalidRequestException("IInvalidRequest: Request Header [robot_id] is required!!");
+        }
+
         String subject = request.getRequestURI().substring(1);
         String payload = new Gson().toJson(param);
+
+        logger.debug("ROBOT COMMAND TO MESSAGE BROKER: robot_id={}, subject={}, payload={}",robotId,subject,payload);
 
         TsoApiResponse tsoApiResponse = messageBrokerUtil.publish(robotId,subject,payload);
 

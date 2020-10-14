@@ -14,7 +14,7 @@ server:
   port: 8000
 config:
   restTemplate:
-    timeout: 10000
+    timeout: 5000
     maxConnTotal: 100
     maxConnPerRoute: 50
   robot:
