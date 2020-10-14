@@ -44,6 +44,12 @@ public class MessageBrokerUtil {
     @Value("${config.robot.brokerport}")
     private String brokerport;
 
+    /**
+     * 시연을 위한 Robot ID.
+     */
+    @Value("${config.robot.tempRobotID}")
+    private String tempRobotID;
+
     private int msgCount = 100;
 
     /**
@@ -94,7 +100,7 @@ public class MessageBrokerUtil {
             Options option = this.initBrokerClient();
             nc = Nats.connect(option);
 
-            this.initSubscribe("addy-id1");
+            this.initSubscribe(tempRobotID);
 
             long unixTime = System.currentTimeMillis() / 1000L;
 

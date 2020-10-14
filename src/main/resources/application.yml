@@ -22,6 +22,7 @@ config:
     brokerip: 15.164.145.178
     brokerport: 4222
     restApiUrl: http://15.164.145.178:8080
+    tempRobotID: addy-id1
   common:
     eventhub:
       connString: Endpoint=sb://yj-eventhub01.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=uPrHV6CYGzN3UzzU0Mfv/okVOH6FfY3q/qf/NXz+nq4=
@@ -32,15 +33,16 @@ spring:
   profiles: dev
 config:
   restTemplate:
-    timeout: ${}
-    maxConnTotal: ${}
-    maxConnPerRoute: ${}
+    timeout: ${APP_RESTTEMPLATE_TIMEOUT}
+    maxConnTotal: ${APP_RESTTEMPLATE_MAX_CONN_TOTAL}
+    maxConnPerRoute: ${APP_RESTTEMPLATE_MAX_CONN_PRE_ROUTE}
   robot:
-    serviceType: ${}
-    brokerip: ${}
-    brokerport: ${}
-    restApiUrl: ${}
+    serviceType: ${APP_SERVICE_TYPE}
+    brokerip: ${APP_ROBOT_BROKER_IP}
+    brokerport: ${APP_ROBOT_BROKER_PORT}
+    restApiUrl: ${APP_ROBOT_SERVER_ADDRESS}
+    tempRobotID: ${APP_ROBOT_ID}
   common:
     eventhub:
-      connString: ${}
-      name: ${}
+      connString: ${APP_EVENT_HUBE_CONN_STRING}
+      name: ${APP_EVENT_HUB_NAME}
