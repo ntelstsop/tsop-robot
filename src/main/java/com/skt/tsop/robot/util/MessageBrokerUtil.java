@@ -101,11 +101,8 @@ public class MessageBrokerUtil {
             String payload = "{\"timestamp\": \"" + String.valueOf(unixTime) + "\",  \"msg_id\": \"12937262\",  \"data\": {\"req\" : 0  }}";
             this.publish("addy-id1", "cmd.context_change", payload);
 
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+        } catch (IOException | InterruptedException | JSONException e) {
+            logger.error("init error : " + e.getCause());
             e.printStackTrace();
         }
     }
@@ -172,17 +169,22 @@ public class MessageBrokerUtil {
         response.setServicetype(this.serviceType);
 
         try {
+            logger.info("subject {}, payload {}", robotid + "." + subject, payload);
             Future<Message> incoming = nc.request(robotid + "." + subject, payload.getBytes(StandardCharsets.UTF_8));
             message = incoming.get(3000, TimeUnit.MILLISECONDS);
             String result = new String(message.getData(), StandardCharsets.UTF_8);
+            Gson gson = new Gson();
+            gson.fromJson(result, Map.class);
             response.setContent(result);
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            logger.error("NATS InterruptedException : ");
-            JSONObject obj = new JSONObject();
-            obj.put("error",e.getMessage());
-            response.setContent(obj);
+            logger.error("NATS InterruptedException : " + e);
+
+            HashMap<String, String> errorMessage = new HashMap<>();
+            errorMessage.put("error", e.toString());
+            response.setContent(errorMessage);
         }
 
+        logger.info("message from NATS Server : {}", response);
         return response;
     }
 
