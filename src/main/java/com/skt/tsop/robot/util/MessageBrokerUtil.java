@@ -2,10 +2,10 @@ package com.skt.tsop.robot.util;
 
 import com.azure.messaging.eventhubs.EventData;
 import com.google.gson.Gson;
+import com.skt.tsop.robot.model.ResponseCode;
 import com.skt.tsop.robot.model.TsoApiResponse;
 import io.nats.client.*;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +43,12 @@ public class MessageBrokerUtil {
      */
     @Value("${config.robot.brokerport}")
     private String brokerport;
+
+    /**
+     * 시연을 위한 Robot ID.
+     */
+    @Value("${config.robot.tempRobotID}")
+    private String tempRobotID;
 
     private int msgCount = 100;
 
@@ -94,7 +100,7 @@ public class MessageBrokerUtil {
             Options option = this.initBrokerClient();
             nc = Nats.connect(option);
 
-            this.initSubscribe("addy-id1");
+            this.initSubscribe(tempRobotID);
 
             long unixTime = System.currentTimeMillis() / 1000L;
 
@@ -180,7 +186,7 @@ public class MessageBrokerUtil {
             logger.error("NATS InterruptedException : " + e);
 
             HashMap<String, String> errorMessage = new HashMap<>();
-            errorMessage.put("error", e.toString());
+            errorMessage.put("error", ResponseCode.ServerError.getValue());
             response.setContent(errorMessage);
         }
 
