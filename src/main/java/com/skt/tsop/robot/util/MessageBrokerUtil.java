@@ -1,9 +1,11 @@
 package com.skt.tsop.robot.util;
 
 import com.azure.messaging.eventhubs.EventData;
-import com.azure.messaging.eventhubs.EventHubClientBuilder;
 import com.google.gson.Gson;
+import com.skt.tsop.robot.model.TsoApiResponse;
 import io.nats.client.*;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +44,7 @@ public class MessageBrokerUtil {
     @Value("${config.robot.brokerport}")
     private String brokerport;
 
-    private int msgCount = 10;
+    private int msgCount = 100;
 
     /**
      * NATS 클라이언트의 Subscribe을 위한 Sub 항목 리스트.
@@ -63,9 +65,22 @@ public class MessageBrokerUtil {
     /**
      * Subscription List.
      */
-    private String[] sublist = {".navigation_service.robot.pose", ".status.battery"
-            , ".navigation_service.global_planner.GlobalPlanner.plan.converted"
-            , ".lrf.scan", ".status.emergency", ".service.status"};
+    private Dispatcher dispatcher = null;
+
+    /**
+     * Subscription List.
+     */
+    private String[] sublist = {
+            ".status.battery",
+            ".navigation_service.robot.pose",
+            ".navigation_service.global_planner.GlobalPlanner.plan.converted",
+            ".lrf.scan",
+            ".status.emergency",
+            ".service.status",
+            ".reception.event.mask_check",
+            ".auto_patrol.event.people_detect",
+            ".service.auto_patrol.photo_result"
+    };
 
     /**
      * Robot Service Type.
@@ -78,27 +93,21 @@ public class MessageBrokerUtil {
         try {
             Options option = this.initBrokerClient();
             nc = Nats.connect(option);
+
             this.initSubscribe("addy-id1");
+
+            long unixTime = System.currentTimeMillis() / 1000L;
+
+            String payload = "{\"timestamp\": \"" + String.valueOf(unixTime) + "\",  \"msg_id\": \"12937262\",  \"data\": {\"req\" : 0  }}";
+            this.publish("addy-id1", "cmd.context_change", payload);
+
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
-    }
-
-    private void request() {
-        Future<Message> incoming = nc.request("subject", "hello world".getBytes(StandardCharsets.UTF_8));
-        Message msg = null;
-        try {
-            msg = incoming.get(500, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (TimeoutException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
-        String response = new String(msg.getData(), StandardCharsets.UTF_8);
     }
 
     /**
@@ -109,47 +118,24 @@ public class MessageBrokerUtil {
         if(robotID == null)
             return;
 
-        this.dispatchersArrayList = new ArrayList<>();
-
-        CountDownLatch latch = new CountDownLatch(msgCount); // dispatcher runs callback in another thread
-
         try {
+            dispatcher = nc.createDispatcher((msg) -> {});
+
             for(String subscription : sublist) {
-                Dispatcher despatcher = nc.createDispatcher((msg) -> {});
+                Subscription sub = dispatcher.subscribe(robotID + subscription, (msg) -> {
+                    String receiveData = new String(msg.getData(), StandardCharsets.UTF_8);
+                    logger.info(robotID + subscription + " Message received : " + receiveData);
 
-                Subscription sub = despatcher.subscribe(robotID + subscription, (msg) -> {
-                    String response = new String(msg.getData(), StandardCharsets.UTF_8);
-                    logger.info(robotID + subscription + " Message received : " + response);
-
-                    /*
-                    if(subscription.equals(".navigation_service.robot.pose")) {
-
-                    } else if(subscription.equals(".status.battery")) {
-
-                    } else if(subscription.equals(".navigation_service.global_planner.GlobalPlanner.plan.converted")) {
-
-                    } else if(subscription.equals(".lrf.scan")) {
-
-                    } else if(subscription.equals(".status.emergency")) {
-
-                    } else if(subscription.equals(".service.status")) {
-
-                    }
-                    */
-
+                    TsoApiResponse response = new TsoApiResponse();
                     Map<String, Object> eventMap = new HashMap<>();
-                    eventMap.put("urlpath", subscription.replaceFirst(".", ""));
-                    eventMap.put("servicetype", serviceType);
-                    eventMap.put("content", response);
+                    response.setUrlpath(subscription.replaceFirst(".", ""));
+                    response.setServicetype(serviceType);
+                    response.setContent(receiveData);
                     EventData eventData = new EventData(new Gson().toJson(eventMap));
                     eventHubUtil.sendDataToEventHub(eventData);
                 });
-
-                this.dispatchersArrayList.add(despatcher);
             }
-
             nc.flush(Duration.ZERO);
-            latch.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (TimeoutException e) {
@@ -176,6 +162,38 @@ public class MessageBrokerUtil {
         }
     }
     */
+
+    /**
+     * NATS 서버에 제어를 전송하기 위한 메소드
+     * */
+    /**
+     * idle connection monitor.
+     * @param robotid robotid
+     * @param subject subject
+     * @param payload payload
+     * @return TsoApiResponse
+     */
+    public TsoApiResponse publish(String robotid, String subject, String payload) throws JSONException {
+        TsoApiResponse response = new TsoApiResponse();
+        Message message = null;
+
+        response.setUrlpath(subject);
+        response.setServicetype(this.serviceType);
+
+        try {
+            Future<Message> incoming = nc.request(robotid + "." + subject, payload.getBytes(StandardCharsets.UTF_8));
+            message = incoming.get(3000, TimeUnit.MILLISECONDS);
+            String result = new String(message.getData(), StandardCharsets.UTF_8);
+            response.setContent(result);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            logger.error("NATS InterruptedException : ");
+            JSONObject obj = new JSONObject();
+            obj.put("error",e.getMessage());
+            response.setContent(obj);
+        }
+
+        return response;
+    }
 
     /**
      * nats 서버에 접속하기 위한 nats 클라이언트 옵션 설정 메소드
