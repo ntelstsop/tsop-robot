@@ -51,7 +51,7 @@ public class RobotController {
      * @param request 요청들어온 HttpServletRequest
      * @return TsoApiResponse
      */
-    @PostMapping(value = "/rest/robot/dispalyname")
+    @PostMapping(value = "/rest/robot/displayname")
     public TsoApiResponse getDisplayname(@RequestBody Map param, HttpServletRequest request) {
         logger.debug("ROBOT REST API REQUEST: uri={}, params={}", request.getRequestURI(), param.toString());
 
