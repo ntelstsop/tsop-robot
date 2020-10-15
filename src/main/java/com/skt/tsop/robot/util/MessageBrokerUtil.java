@@ -102,9 +102,9 @@ public class MessageBrokerUtil {
 
             this.initSubscribe(tempRobotID);
 
-            long unixTime = System.currentTimeMillis() / 1000L;
+            long unixTime = System.currentTimeMillis();
 
-            String payload = "{\"timestamp\": \"" + String.valueOf(unixTime) + "\",  \"msg_id\": \"12937262\",  \"data\": {\"req\" : 0  }}";
+            String payload = "{\"timestamp\": " + String.valueOf(unixTime) + ",  \"msg_id\": \"12937262\",  \"data\": {\"req\" : 0  }}";
             this.publish("addy-id1", "cmd.context_change", payload);
 
         } catch (IOException | InterruptedException | JSONException e) {
