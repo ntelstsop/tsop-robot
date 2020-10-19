@@ -29,7 +29,6 @@ public interface RobotService {
      * @param request HttpServletRequest
      * @param param   요청 들어온 RequestBody: 제어 Command
      * @return TsoApiResponse
-     * @throws JSONException
      */
     TsoApiResponse robotControl(HttpServletRequest request, Map param);
 }
