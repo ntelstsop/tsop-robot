@@ -87,10 +87,6 @@ public class RobotServiceImpl implements RobotService {
 
         TsoApiResponse tsoApiResponse = messageBrokerUtil.publish(robotId,subject,payload);
 
-        if (tsoApiResponse.getContent() == null){
-            tsoApiResponse.setContent(new ApiResponse());
-        }
-
         return tsoApiResponse;
     }
 }
