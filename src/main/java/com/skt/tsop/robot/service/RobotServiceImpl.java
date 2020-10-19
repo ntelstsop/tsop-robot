@@ -19,6 +19,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
 /**
+ * RobotServiceImpl
+ *
  * @author syjeon@ntels.com
  */
 @Service
@@ -42,7 +44,6 @@ public class RobotServiceImpl implements RobotService {
     private String serverUrl;
 
     /**
-     * RestTemplateMap Util
      * RestTemplateString Util
      */
     @Autowired
@@ -55,7 +56,7 @@ public class RobotServiceImpl implements RobotService {
     private MessageBrokerUtil messageBrokerUtil;
 
     @Override
-    public TsoApiResponse getRobotApi(HttpServletRequest request, Map param) {
+    public TsoApiResponse getRobotInfo(HttpServletRequest request, Map param) {
         String urlPath = request.getRequestURI();
         String url = serverUrl + urlPath;
 
@@ -73,19 +74,19 @@ public class RobotServiceImpl implements RobotService {
     }
 
     @Override
-    public TsoApiResponse robotControl(HttpServletRequest request, Map param) throws JSONException {
+    public TsoApiResponse robotControl(HttpServletRequest request, Map param) {
         String robotId = request.getHeader("robot_id");
 
-        if (robotId == null){
-            throw new InvalidRequestException("InvalidRequest: Request Header [robot_id] is required!!");
+        if (robotId == null) {
+            throw new InvalidRequestException("Request Header [robot_id] is required!");
         }
 
         String subject = request.getRequestURI().substring(1);
         String payload = new Gson().toJson(param);
 
-        logger.debug("ROBOT COMMAND TO MESSAGE BROKER: robot_id={}, subject={}, payload={}",robotId,subject,payload);
+        logger.debug("ROBOT_COMMAND SEND TO MESSAGE_BROKER: robot_id={}, subject={}, payload={}", robotId, subject, payload);
 
-        TsoApiResponse tsoApiResponse = messageBrokerUtil.publish(robotId,subject,payload);
+        TsoApiResponse tsoApiResponse = messageBrokerUtil.publish(robotId, subject, payload);
 
         return tsoApiResponse;
     }
