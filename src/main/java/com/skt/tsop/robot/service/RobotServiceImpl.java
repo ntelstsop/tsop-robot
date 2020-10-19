@@ -42,6 +42,7 @@ public class RobotServiceImpl implements RobotService {
     private String serverUrl;
 
     /**
+     * RestTemplateMap Util
      * RestTemplateString Util
      */
     @Autowired
@@ -76,7 +77,7 @@ public class RobotServiceImpl implements RobotService {
         String robotId = request.getHeader("robot_id");
 
         if (robotId == null){
-            throw new InvalidRequestException("IInvalidRequest: Request Header [robot_id] is required!!");
+            throw new InvalidRequestException("InvalidRequest: Request Header [robot_id] is required!!");
         }
 
         String subject = request.getRequestURI().substring(1);
@@ -93,3 +94,4 @@ public class RobotServiceImpl implements RobotService {
         return tsoApiResponse;
     }
 }
+

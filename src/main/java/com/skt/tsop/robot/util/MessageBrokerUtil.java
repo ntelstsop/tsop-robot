@@ -2,6 +2,7 @@ package com.skt.tsop.robot.util;
 
 import com.azure.messaging.eventhubs.EventData;
 import com.google.gson.Gson;
+import com.skt.tsop.robot.model.ApiResponse;
 import com.skt.tsop.robot.model.ResponseCode;
 import com.skt.tsop.robot.model.TsoApiResponse;
 import io.nats.client.*;
@@ -85,7 +86,10 @@ public class MessageBrokerUtil {
             ".service.status",
             ".reception.event.mask_check",
             ".auto_patrol.event.people_detect",
-            ".service.auto_patrol.photo_result"
+            ".service.auto_patrol.photo_result",
+            ".cmd.move_to.result",
+            ".cmd.manual_patrol.result",
+            ".cmd.photo.result"
     };
 
     /**
@@ -101,13 +105,7 @@ public class MessageBrokerUtil {
             nc = Nats.connect(option);
 
             this.initSubscribe(tempRobotID);
-
-            long unixTime = System.currentTimeMillis();
-
-            String payload = "{\"timestamp\": " + String.valueOf(unixTime) + ",  \"msg_id\": \"12937262\",  \"data\": {\"req\" : 0  }}";
-            this.publish("addy-id1", "cmd.context_change", payload);
-
-        } catch (IOException | InterruptedException | JSONException e) {
+        } catch (IOException | InterruptedException e) {
             logger.error("init error : " + e.getCause());
             e.printStackTrace();
         }
@@ -166,22 +164,19 @@ public class MessageBrokerUtil {
      * @param payload payload
      * @return TsoApiResponse
      */
-    public TsoApiResponse publish(String robotid, String subject, String payload) throws JSONException {
+    public TsoApiResponse publish(String robotid, String subject, String payload) {
         TsoApiResponse response = new TsoApiResponse();
         Message message = null;
 
         response.setUrlpath(subject);
         response.setServicetype(this.serviceType);
 
+        logger.info("subject {}, payload {}", robotid + "." + subject, payload);
+
         try {
-            logger.info("subject {}, payload {}", robotid + "." + subject, payload);
-            Future<Message> incoming = nc.request(robotid + "." + subject, payload.getBytes(StandardCharsets.UTF_8));
-            message = incoming.get(3000, TimeUnit.MILLISECONDS);
-            String result = new String(message.getData(), StandardCharsets.UTF_8);
-            Gson gson = new Gson();
-            gson.fromJson(result, Map.class);
-            response.setContent(result);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            nc.publish(robotid + "." + subject, payload.getBytes(StandardCharsets.UTF_8));
+            response.setContent(new ApiResponse());
+        } catch(Exception e) {
             logger.error("NATS InterruptedException : " + e);
 
             HashMap<String, String> errorMessage = new HashMap<>();
@@ -189,7 +184,6 @@ public class MessageBrokerUtil {
             response.setContent(errorMessage);
         }
 
-        logger.info("message from NATS Server : {}", response);
         return response;
     }
 
