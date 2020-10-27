@@ -24,6 +24,7 @@ import java.util.concurrent.*;
 
 /**
  * MessageBrokerUtil.
+ *
  * @author kscho@ntels.com
  */
 @Component
@@ -113,19 +114,25 @@ public class MessageBrokerUtil {
 
     /**
      * NATS 클라이언트에 여러개의 SUB을 거는 메소드
-     * */
+     */
     private void initSubscribe(String robotID) {
-        if(robotID == null)
+        if (robotID == null)
             return;
 
         try {
-            dispatcher = nc.createDispatcher((msg) -> {});
+            dispatcher = nc.createDispatcher((msg) -> {
+            });
 
             subscriptionList = new ArrayList<>();
 
-            for(String subscription : sublist) {
+            for (String subscription : sublist) {
                 Subscription sub = dispatcher.subscribe(robotID + subscription, (msg) -> {
                     String receiveData = new String(msg.getData(), StandardCharsets.UTF_8);
+
+                    //Json 문자열 "\n" "공백" 제거
+                    Map<String, Object> convertMap = new Gson().fromJson(receiveData, Map.class);
+                    receiveData = new Gson().toJson(convertMap);
+
                     logger.info(robotID + subscription + " Message received : " + receiveData);
 
                     TsoApiResponse response = new TsoApiResponse();
@@ -146,7 +153,7 @@ public class MessageBrokerUtil {
 
     /**
      * NATS 클라이언트에 여러개의 UnSubscription을 거는 메소드
-     * */
+     */
     private void initUnSubscribe() {
         if (subscriptionList != null && subscriptionList.size() > 0) {
             for (String sub : subscriptionList)
@@ -159,6 +166,7 @@ public class MessageBrokerUtil {
      * */
     /**
      * idle connection monitor.
+     *
      * @param robotid robotid
      * @param subject subject
      * @param payload payload
@@ -176,7 +184,7 @@ public class MessageBrokerUtil {
         try {
             nc.publish(robotid + "." + subject, payload.getBytes(StandardCharsets.UTF_8));
             response.setContent(new ApiResponse());
-        } catch(Exception e) {
+        } catch (Exception e) {
             logger.error("NATS InterruptedException : " + e);
 
             HashMap<String, String> errorMessage = new HashMap<>();
@@ -189,8 +197,9 @@ public class MessageBrokerUtil {
 
     /**
      * nats 서버에 접속하기 위한 nats 클라이언트 옵션 설정 메소드
+     *
      * @return Builder
-     * */
+     */
     private Options initBrokerClient() {
         Options.Builder builder = new Options.Builder().
                 server("nats://" + this.brokerip + ":" + this.brokerport).
@@ -200,7 +209,7 @@ public class MessageBrokerUtil {
                 maxReconnects(-1).
                 traceConnection();
 
-        builder = builder.connectionListener((conn, type) -> System.out.println("Status change "+type));
+        builder = builder.connectionListener((conn, type) -> System.out.println("Status change " + type));
 
         builder = builder.errorListener(new ErrorListener() {
             @Override
