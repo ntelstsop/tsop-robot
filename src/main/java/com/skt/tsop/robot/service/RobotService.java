@@ -1,7 +1,6 @@
 package com.skt.tsop.robot.service;
 
 import com.skt.tsop.robot.model.TsoApiResponse;
-import org.json.JSONException;
 
 
 import javax.servlet.http.HttpServletRequest;

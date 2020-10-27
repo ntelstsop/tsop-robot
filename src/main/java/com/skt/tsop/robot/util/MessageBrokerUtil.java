@@ -31,7 +31,7 @@ public class MessageBrokerUtil {
     /**
      * Logger.
      */
-    private static final Logger logger = LoggerFactory.getLogger(EventHubUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(MessageBrokerUtil.class);
 
     /**
      * 브로커 IP.
