@@ -130,16 +130,16 @@ public class MessageBrokerUtil {
                     String receiveData = new String(msg.getData(), StandardCharsets.UTF_8);
 
                     //Json 문자열 "\n" "공백" 제거
-                    Map<String, Object> convertMap = new Gson().fromJson(receiveData, Map.class);
-                    receiveData = new Gson().toJson(convertMap);
-
-                    logger.info(robotID + subscription + " Message received : " + receiveData);
+                    Gson gson = new Gson();
+                    Map<String, Object> receiveDataMap = gson.fromJson(receiveData, Map.class);
+                    String convertData = gson.toJson(receiveDataMap);
+                    logger.info(robotID + subscription + " Message received : " + convertData);
 
                     TsoApiResponse response = new TsoApiResponse();
                     response.setUrlpath(subscription.replaceFirst(".", ""));
                     response.setServicetype(serviceType);
-                    response.setContent(receiveData);
-                    EventData eventData = new EventData(new Gson().toJson(response));
+                    response.setContent(receiveDataMap);
+                    EventData eventData = new EventData(gson.toJson(response));
                     eventHubUtil.sendDataToEventHub(eventData);
                 });
                 subscriptionList.add(sub.getSubject());
