@@ -56,7 +56,6 @@ public class EventHubUtil {
     public void sendDataToEventHub(EventData eventData) {
         logger.debug("SEND_DATA_TO_EVENT_HUB_STARTED : string={}", eventData.getBodyAsString());
 
-        logger.debug("BATCH_INFO : count={}, sizeInBytes={}, maxSize={}" ,batch.getCount(), batch.getSizeInBytes(), batch.getMaxSizeInBytes());
         try {
             batch.tryAdd(eventData);
             producer.send(batch);
