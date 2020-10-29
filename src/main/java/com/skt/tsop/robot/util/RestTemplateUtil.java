@@ -11,33 +11,45 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
- * RestTemplateStringUtil.
+ * RestTemplate 활용 Http Client 객체
  *
- * @author yjkim@ntels.com
+ * @author syjeon@ntels.com
  */
 @Component
-public class RestTemplateStringUtil {
+public class RestTemplateUtil {
+
     /**
-     * Logger.
+     * Logger
      */
-    private static final Logger logger = LoggerFactory.getLogger(RestTemplateStringUtil.class);
+    private static final Logger logger = LoggerFactory.getLogger(RestTemplateUtil.class);
+
     /**
-     * RestTemplate.
+     * RestTemplate
      */
     @Autowired
-    RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
-    public String restTemplate(String url, HttpMethod httpMethod, HttpHeaders headers, Map<String, Object> bodyMap) {
+
+    /**
+     * Http Client 수행
+     * @param url           요청 URL
+     * @param httpMethod    요청 Method
+     * @param headers       요청 Headers
+     * @param bodyMap       요청 Body
+     * @param type          반환 클래스
+     * @param <T>           반환 클래스 타입
+     * @return T Object
+     */
+    public <T> T restTemplate(String url, HttpMethod httpMethod, HttpHeaders headers, Map<String, Object> bodyMap, Class<T> type) {
         long trId = System.currentTimeMillis();
-        HttpEntity<Object> entity = new HttpEntity<>(bodyMap, headers);
         logger.debug("REST_REQUEST_INFO: trId={}, url={}, method={}, body={}", trId, url, httpMethod, bodyMap);
-        Map<String, Object> resultMap = new HashMap<>();
+        HttpEntity<Object> httpEntity = new HttpEntity<>(bodyMap, headers);
+
         try {
-            ResponseEntity<String> responseEntity = restTemplate.exchange(url, httpMethod, entity, String.class);
+            ResponseEntity<T> responseEntity = restTemplate.exchange(url, httpMethod, httpEntity, type);
             logger.debug("REST_RESPONSE_INFO: trId={}, statusCode={}, body={}", trId, responseEntity.getStatusCode(), responseEntity.getBody());
             return responseEntity.getBody();
         } catch (HttpStatusCodeException e) {
@@ -48,4 +60,7 @@ public class RestTemplateStringUtil {
             throw e;
         }
     }
+
+
 }
+

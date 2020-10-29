@@ -2,7 +2,6 @@ package com.skt.tsop.robot.controller.robot;
 
 import com.skt.tsop.robot.model.TsoApiResponse;
 import com.skt.tsop.robot.service.RobotService;
-import org.json.JSONException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,7 +85,6 @@ public class RobotController {
      * @param param   제어 Payload
      * @param request HttpServletRequest
      * @return TsoApiResponse
-     * @throws JSONException
      */
     @PutMapping(value = "/cmd.context_change")
     public TsoApiResponse contextChange(@RequestBody Map param, HttpServletRequest request) {
@@ -103,7 +101,6 @@ public class RobotController {
      * @param param   제어 Payload
      * @param request HttpServletRequest
      * @return TsoApiResponse
-     * @throws JSONException
      */
     @PutMapping(value = "/cmd.linear_vel")
     public TsoApiResponse linearVel(@RequestBody Map param, HttpServletRequest request) {
@@ -120,7 +117,6 @@ public class RobotController {
      * @param param   제어 Payload
      * @param request HttpServletRequest
      * @return TsoApiResponse
-     * @throws JSONException
      */
     @PutMapping(value = "/cmd.angular_vel")
     public TsoApiResponse angularVel(@RequestBody Map param, HttpServletRequest request) {
@@ -137,7 +133,6 @@ public class RobotController {
      * @param param   제어 Payload
      * @param request HttpServletRequest
      * @return TsoApiResponse
-     * @throws JSONException
      */
     @PutMapping(value = "/cmd.move_to")
     public TsoApiResponse moveTo(@RequestBody Map param, HttpServletRequest request) {
@@ -154,7 +149,6 @@ public class RobotController {
      * @param param   제어 Payload
      * @param request HttpServletRequest
      * @return TsoApiResponse
-     * @throws JSONException
      */
     @PutMapping(value = "/cmd.head_control")
     public TsoApiResponse headControl(@RequestBody Map param, HttpServletRequest request) {
@@ -171,7 +165,6 @@ public class RobotController {
      * @param param   제어 Payload
      * @param request HttpServletRequest
      * @return TsoApiResponse
-     * @throws JSONException
      */
     @PutMapping(value = "/cmd.manual_patrol")
     public TsoApiResponse manualPatrol(@RequestBody Map param, HttpServletRequest request) {
@@ -188,7 +181,6 @@ public class RobotController {
      * @param param   제어 Payload
      * @param request HttpServletRequest
      * @return TsoApiResponse
-     * @throws JSONException
      */
     @PutMapping(value = "/cmd.photo")
     public TsoApiResponse photo(@RequestBody Map param, HttpServletRequest request) {
