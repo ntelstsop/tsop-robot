@@ -2,11 +2,9 @@ package com.skt.tsop.robot.service;
 
 import com.google.gson.Gson;
 import com.skt.tsop.robot.exception.InvalidRequestException;
-import com.skt.tsop.robot.model.ApiResponse;
 import com.skt.tsop.robot.model.TsoApiResponse;
 import com.skt.tsop.robot.util.MessageBrokerUtil;
-import com.skt.tsop.robot.util.RestTemplateStringUtil;
-import org.json.JSONException;
+import com.skt.tsop.robot.util.RestTemplateMapUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +45,7 @@ public class RobotServiceImpl implements RobotService {
      * RestTemplateString Util
      */
     @Autowired
-    private RestTemplateStringUtil restTemplateStringUtil;
+    private RestTemplateMapUtil restTemplateMapUtil;
 
     /**
      * MessageBrokerUtil
@@ -63,12 +61,12 @@ public class RobotServiceImpl implements RobotService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
 
-        String response = restTemplateStringUtil.restTemplate(url, HttpMethod.POST, headers, param);
+        Map<String, Object> response = restTemplateMapUtil.restTemplate(url, HttpMethod.POST, headers, param);
 
         TsoApiResponse tsoApiResponse = new TsoApiResponse();
         tsoApiResponse.setUrlpath(urlPath);
         tsoApiResponse.setServicetype(serviceType);
-        tsoApiResponse.setContent(new Gson().fromJson(response, Map.class));
+        tsoApiResponse.setContent(response);
 
         return tsoApiResponse;
     }
